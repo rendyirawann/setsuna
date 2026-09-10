@@ -1345,20 +1345,22 @@ select option { background: var(--panel); color: var(--cream); }
     height: 100%;
     object-fit: cover;
     object-position: center;
-    opacity: 0.6;
-    filter: contrast(1.05) saturate(1.02);
+    opacity: 0.82;
+    filter: brightness(1.14) contrast(1.04) saturate(1.04);
 }
 
+/* Pekat hanya di kolom kiri tempat judul berdiri; ke kanan sengaja
+   dibiarkan tipis supaya fotonya benar-benar terlihat. */
 .hero__veil {
     background:
         linear-gradient(90deg,
-            rgba(11, 10, 9, 0.96) 0%,
-            rgba(11, 10, 9, 0.88) 32%,
-            rgba(11, 10, 9, 0.62) 60%,
-            rgba(11, 10, 9, 0.52) 82%,
-            rgba(11, 10, 9, 0.82) 100%),
-        radial-gradient(ellipse 70% 90% at 20% 50%, rgba(11, 10, 9, 0.8), transparent 72%),
-        linear-gradient(0deg, var(--ink) 0%, rgba(11, 10, 9, 0.28) 22%, transparent 56%, rgba(11, 10, 9, 0.5) 100%);
+            rgba(11, 10, 9, 0.93) 0%,
+            rgba(11, 10, 9, 0.8) 30%,
+            rgba(11, 10, 9, 0.4) 58%,
+            rgba(11, 10, 9, 0.22) 80%,
+            rgba(11, 10, 9, 0.48) 100%),
+        radial-gradient(ellipse 66% 86% at 18% 50%, rgba(11, 10, 9, 0.72), transparent 74%),
+        linear-gradient(0deg, var(--ink) 0%, rgba(11, 10, 9, 0.22) 20%, transparent 54%, rgba(11, 10, 9, 0.42) 100%);
 }
 
 .hero__inner {
