@@ -1585,3 +1585,30 @@ select option { background: var(--panel); color: var(--cream); }
     .curtain__kana,
     .curtain__name { animation-duration: 0.01ms; animation-delay: 0s; }
 }
+
+/* =========================================================================
+   Mosaik hero: tiga foto yang diletakkan tidak sejajar
+   -------------------------------------------------------------------------
+   Pergeserannya sengaja tidak berpola tangga — kalau selisihnya seragam,
+   susunannya kembali terlihat seperti grid. Jaraknya kecil saja supaya
+   tetap terbaca sebagai satu kelompok, ditambah miring sedikit agar
+   terkesan foto yang ditata tangan.
+   ========================================================================= */
+
+.mosaic { align-items: start; }
+
+.mosaic figure:nth-child(1) { transform: translateY(-12px) rotate(-0.9deg); }
+.mosaic figure:nth-child(2) { transform: translateY(20px) rotate(0.7deg); }
+.mosaic figure:nth-child(3) { transform: translateY(2px) rotate(-0.5deg); }
+
+/* Sedikit membesar saat disentuh, tanpa kehilangan kemiringannya. */
+.mosaic figure { transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.mosaic figure:nth-child(1):hover { transform: translateY(-16px) rotate(-0.9deg) scale(1.02); }
+.mosaic figure:nth-child(2):hover { transform: translateY(16px) rotate(0.7deg) scale(1.02); }
+.mosaic figure:nth-child(3):hover { transform: translateY(-2px) rotate(-0.5deg) scale(1.02); }
+
+@media (max-width: 940px) {
+    .mosaic figure:nth-child(1),
+    .mosaic figure:nth-child(2),
+    .mosaic figure:nth-child(3) { transform: none; }
+}
