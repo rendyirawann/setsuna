@@ -29,7 +29,7 @@
 
     --shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9);
     --serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-    --sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --sans: 'Plus Jakarta Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
 
     --wrap: min(1720px, 94vw);
 }
@@ -1031,3 +1031,291 @@ select option { background: var(--panel); color: var(--cream); }
 
     .hero__collage { opacity: 0.5; }
 }
+
+/* =========================================================================
+   Penyesuaian hero + bentuk kartu
+   -------------------------------------------------------------------------
+   Hero dibuat lebih terang supaya fotonya benar-benar terlihat; teks tetap
+   terbaca karena selubung gelapnya dipekatkan hanya di kolom kiri.
+
+   Kartu dibuat bersudut asimetris — bukan kotak seragam — supaya
+   halamannya terasa dirancang, bukan hasil grid generik.
+   ========================================================================= */
+
+.hero__bg-img { opacity: 0.95; }
+
+.hero__veil {
+    background:
+        linear-gradient(90deg,
+            rgba(11, 10, 9, 0.94) 0%,
+            rgba(11, 10, 9, 0.82) 26%,
+            rgba(11, 10, 9, 0.42) 52%,
+            rgba(11, 10, 9, 0.22) 74%,
+            rgba(11, 10, 9, 0.5) 100%),
+        radial-gradient(ellipse 62% 82% at 16% 50%, rgba(11, 10, 9, 0.78), transparent 72%),
+        linear-gradient(0deg, var(--ink) 0%, transparent 26%, transparent 72%, rgba(11, 10, 9, 0.55) 100%);
+}
+
+/* Judul hero diberi bayangan tipis supaya tetap tegas di atas foto. */
+.hero h1,
+.hero .lead {
+    text-shadow: 0 2px 24px rgba(8, 7, 6, 0.85);
+}
+
+@media (max-width: 940px) {
+    .hero__veil {
+        background: linear-gradient(180deg, rgba(11, 10, 9, 0.88), rgba(11, 10, 9, 0.82) 50%, var(--ink) 100%);
+    }
+}
+
+/* --- Kartu bersudut asimetris --- */
+
+.card {
+    border-radius: 34px 6px 34px 6px;
+    background: linear-gradient(150deg, rgba(32, 27, 22, 0.86), rgba(15, 13, 11, 0.92));
+    border-color: rgba(244, 223, 192, 0.1);
+    overflow: hidden;
+}
+
+.card:nth-child(even) { border-radius: 6px 34px 6px 34px; }
+
+/* Sapuan cahaya tipis di sudut lengkung, mengikuti arah radiusnya. */
+.card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle at 0 0, rgba(244, 223, 192, 0.09), transparent 70%);
+    pointer-events: none;
+}
+
+.card:nth-child(even)::after {
+    left: auto;
+    right: 0;
+    background: radial-gradient(circle at 100% 0, rgba(244, 223, 192, 0.09), transparent 70%);
+}
+
+.card:hover { border-color: rgba(230, 199, 154, 0.34); }
+
+/* Ikon: cincin tipis, bukan kotak. */
+.icon-dot {
+    border-radius: 50%;
+    width: 52px;
+    height: 52px;
+    background: transparent;
+    border: 1px solid rgba(230, 199, 154, 0.32);
+    font-size: 1.3rem;
+    position: relative;
+}
+
+.icon-dot::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 1px solid rgba(244, 223, 192, 0.1);
+}
+
+/* Kartu paket ikut bentuk yang sama, dengan lengkung lebih besar. */
+.plan { border-radius: 44px 8px 44px 8px; }
+.plan--featured { border-radius: 8px 44px 8px 44px; }
+.plan--featured::before { border-radius: 8px 44px 0 0; }
+
+/* Ubin galeri: sudut yang bervariasi supaya mosaiknya tidak kaku. */
+.tile { border-radius: 20px 4px 20px 4px; }
+.tile:nth-child(3n) { border-radius: 4px 20px 4px 20px; }
+.tile:nth-child(4n) { border-radius: 20px; }
+
+.mosaic figure { border-radius: 22px 4px 22px 4px; }
+.mosaic figure:nth-child(even) { border-radius: 4px 22px 4px 22px; }
+
+/* =========================================================================
+   Banner hero — gambar tampil utuh
+   -------------------------------------------------------------------------
+   Gambarnya dipasang penuh dengan rasio aslinya, jadi tidak ada bagian
+   yang terpotong. Karena gambar itu sudah membawa judulnya sendiri,
+   teks SETSUNA diletakkan di bawahnya, bukan menimpanya.
+   ========================================================================= */
+
+.hero-banner {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: var(--ink);
+    line-height: 0;
+}
+
+.hero-banner img {
+    width: 100%;
+    height: auto;
+    display: block;
+    /* "agak terang" — foto aslinya gelap, sedikit diangkat. */
+    filter: brightness(1.18) contrast(1.03) saturate(1.05);
+}
+
+/* Tepi atas dan bawah dilebur ke warna halaman supaya menyatu. */
+.hero-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(180deg, rgba(11, 10, 9, 0.55) 0%, transparent 14%, transparent 76%, var(--ink) 100%),
+        linear-gradient(90deg, rgba(11, 10, 9, 0.5) 0%, transparent 10%, transparent 90%, rgba(11, 10, 9, 0.5) 100%);
+}
+
+/* Hero teks di bawah banner: tanpa gambar latar lagi. */
+.hero--under {
+    padding-top: clamp(30px, 5vw, 60px);
+}
+
+.hero--under::before { display: none; }
+
+/* =========================================================================
+   Mosaik album: ukuran ubin bervariasi
+   -------------------------------------------------------------------------
+   Foto acara sering punya rasio yang seragam, jadi kalau dibiarkan apa
+   adanya grid-nya terlihat seperti kotak-kotak seragam. Di sini tiap
+   ubin diberi rasio berbeda dalam pola berulang, lalu gambarnya di-cover
+   — hasilnya album terasa seperti tempelan foto, bukan tabel.
+   ========================================================================= */
+
+.gallery-grid .tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.gallery-grid .tile {
+    display: block;
+    width: 100%;
+}
+
+/* Pola tujuh langkah supaya perulangannya tidak mudah terbaca mata. */
+.gallery-grid .tile:nth-child(7n + 1) { aspect-ratio: 3 / 4; }
+.gallery-grid .tile:nth-child(7n + 2) { aspect-ratio: 1 / 1; }
+.gallery-grid .tile:nth-child(7n + 3) { aspect-ratio: 4 / 5; }
+.gallery-grid .tile:nth-child(7n + 4) { aspect-ratio: 2 / 3; }
+.gallery-grid .tile:nth-child(7n + 5) { aspect-ratio: 5 / 4; }
+.gallery-grid .tile:nth-child(7n + 6) { aspect-ratio: 3 / 4; }
+.gallery-grid .tile:nth-child(7n + 7) { aspect-ratio: 4 / 3; }
+
+/* Sesekali satu foto dibiarkan menonjol lebih besar. */
+.gallery-grid .tile:nth-child(11n + 5) { aspect-ratio: 3 / 5; }
+
+/* Mosaik di hero ikut bervariasi, tapi lebih rapat. */
+.mosaic figure:nth-child(3n + 2) { aspect-ratio: 1 / 1; }
+.mosaic figure:nth-child(4n + 3) { aspect-ratio: 4 / 5; }
+
+/* =========================================================================
+   Hero final
+   -------------------------------------------------------------------------
+   Gambar dipakai apa adanya. Sisi kirinya membawa judul bawaan gambar,
+   jadi bingkainya digeser ke kanan: bagian itu keluar bingkai dengan
+   sendirinya, tanpa perlu menambal apa pun.
+
+   Selubungnya tipis dan hanya memekat tepat di belakang teks, supaya
+   fotonya tetap terlihat jelas.
+   ========================================================================= */
+
+.hero__bg-img {
+    opacity: 1;
+    object-position: 100% center;
+    filter: brightness(1.06) saturate(1.04);
+}
+
+.hero__veil {
+    background:
+        /* scrim lembut tepat di belakang kolom teks */
+        radial-gradient(ellipse 46% 74% at 24% 48%, rgba(9, 8, 7, 0.86), rgba(9, 8, 7, 0.42) 55%, transparent 78%),
+        /* tepi atas dan bawah dilebur ke warna halaman */
+        linear-gradient(180deg, rgba(11, 10, 9, 0.72) 0%, transparent 22%, transparent 62%, var(--ink) 100%),
+        linear-gradient(90deg, rgba(11, 10, 9, 0.6) 0%, transparent 42%, transparent 88%, rgba(11, 10, 9, 0.45) 100%);
+}
+
+/* Mosaik kecil di kanan hero tidak perlu lagi: fotonya sudah jadi latar. */
+.hero .mosaic { display: none; }
+
+.hero__inner { grid-template-columns: minmax(0, 1fr); }
+.hero h1, .hero .lead { text-shadow: 0 2px 30px rgba(6, 5, 4, 0.95); }
+.hero .lead { max-width: 34rem; }
+
+@media (max-width: 940px) {
+    .hero__veil {
+        background: linear-gradient(180deg, rgba(11, 10, 9, 0.86), rgba(11, 10, 9, 0.78) 50%, var(--ink) 100%);
+    }
+}
+
+/* Selubung hero versi terakhir: tanpa bidang gelap di belakang teks.
+   Yang tersisa hanya peleburan tepi atas dan bawah supaya hero menyatu
+   dengan halaman; keterbacaan judul dijaga oleh bayangan teks. */
+.hero__veil {
+    background:
+        linear-gradient(180deg, rgba(11, 10, 9, 0.6) 0%, transparent 18%),
+        linear-gradient(0deg, var(--ink) 0%, rgba(11, 10, 9, 0.45) 16%, transparent 38%);
+}
+
+.hero h1,
+.hero .lead,
+.hero .kana,
+.hero .eyebrow,
+.hero__meta b,
+.hero__meta span {
+    text-shadow: 0 1px 2px rgba(6, 5, 4, 0.95), 0 4px 26px rgba(6, 5, 4, 0.9);
+}
+
+/* Tingkat perbesaran hero: cukup untuk membuang sisi kiri gambar yang
+   membawa judul bawaannya, tapi tidak sampai memotong wajah orangnya. */
+.hero {
+    min-height: clamp(520px, 74vh, 780px);
+    display: flex;
+    align-items: center;
+}
+
+.hero__bg-img { object-position: 76% center; }
+
+@media (max-width: 940px) {
+    .hero { min-height: auto; }
+    .hero__bg-img { object-position: 70% center; }
+}
+
+/* Mosaik foto di kanan hero tetap dipakai: itu yang langsung
+   memperlihatkan "beginilah hasil jepretan tamu". */
+.hero .mosaic { display: grid; }
+
+.hero__inner {
+    grid-template-columns: 1.02fr 0.98fr;
+    align-items: center;
+}
+
+@media (max-width: 940px) {
+    .hero__inner { grid-template-columns: 1fr; }
+    .hero .mosaic { display: none; }
+}
+
+/* Kredit pembuat di footer. */
+.footer-credit {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.footer-credit b { color: var(--muted); font-weight: 500; }
+
+.footer-credit a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 5px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted-2);
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.footer-credit a:hover { color: var(--gold); border-color: var(--line-strong); }
+.footer-credit svg { width: 15px; height: 15px; }

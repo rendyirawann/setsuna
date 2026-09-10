@@ -25,3 +25,8 @@ Thumbs.db
 
 # Berkas referensi lokal, bukan bagian aplikasi
 *.mp4
+
+# Gambar sumber yang dijatuhkan di root (sudah diproses ke public/assets)
+/[0-9].png
+/hero.png
+/ChatGPT Image*.png

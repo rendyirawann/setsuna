@@ -34,22 +34,22 @@
 
             <div class="grid grid--4">
                 <div class="card reveal">
-                    <div class="icon-dot">🔗</div>
+                    <div class="icon-dot">@include("partials.line-icon", ["name" => "link"])</div>
                     <h3 style="font-size:1.15rem">Portal sendiri</h3>
                     <p>Alamat khusus acaramu, mis. /pernikahan-emma, tempat semua hasil berkumpul.</p>
                 </div>
                 <div class="card reveal">
-                    <div class="icon-dot">📷</div>
+                    <div class="icon-dot">@include("partials.line-icon", ["name" => "camera"])</div>
                     <h3 style="font-size:1.15rem">Kamera tanpa aplikasi</h3>
                     <p>Scan QR, kamera langsung terbuka di browser tamu. Tidak ada yang perlu diunduh.</p>
                 </div>
                 <div class="card reveal">
-                    <div class="icon-dot">🖨️</div>
+                    <div class="icon-dot">@include("partials.line-icon", ["name" => "printer"])</div>
                     <h3 style="font-size:1.15rem">Papan QR siap cetak</h3>
                     <p>Desain papan lengkap dengan instruksi, tinggal cetak dan pajang di venue.</p>
                 </div>
                 <div class="card reveal">
-                    <div class="icon-dot">⬇️</div>
+                    <div class="icon-dot">@include("partials.line-icon", ["name" => "download"])</div>
                     <h3 style="font-size:1.15rem">Unduh semuanya</h3>
                     <p>Semua foto dan video bisa diunduh sekaligus dalam satu berkas zip.</p>
                 </div>

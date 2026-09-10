@@ -6,10 +6,10 @@
 @section('content')
 
     {{-- ------------------------------------------------------------ Hero --}}
+    {{-- Satu hero saja: foto jadi latar, teks SETSUNA di atasnya.
+         Gambarnya sudah dipotong dari sisi yang membawa judul bawaan,
+         jadi tidak ada dua judul yang bertabrakan. --}}
     <section class="hero">
-        {{-- Latar: gambar hero khusus kalau ada, kalau tidak kolase dari
-             foto acara yang sudah masuk. Keduanya ditutup selubung gelap
-             supaya judulnya tetap yang paling terbaca. --}}
         <div class="hero__bg" aria-hidden="true">
             @if (file_exists(public_path('assets/media/hero/hero.jpg')))
                 <img src="{{ asset('assets/media/hero/hero.jpg') }}" alt="" class="hero__bg-img" />
@@ -154,7 +154,7 @@
 
             <div class="grid grid--3">
                 <div class="card reveal">
-                    <div class="icon-dot">💍</div>
+                    <div class="icon-dot">@include("partials.line-icon", ["name" => "rings"])</div>
                     <h3>Pernikahan</h3>
                     <p>
                         Tawa di meja keluarga, tangis ibu di pelaminan, dansa terakhir sebelum
@@ -163,7 +163,7 @@
                 </div>
 
                 <div class="card reveal">
-                    <div class="icon-dot">🎓</div>
+                    <div class="icon-dot">@include("partials.line-icon", ["name" => "cap"])</div>
                     <h3>Wisuda kampus</h3>
                     <p>
                         Ribuan wisudawan, ribuan keluarga, satu hari. Setiap toga dan setiap
@@ -172,7 +172,7 @@
                 </div>
 
                 <div class="card reveal">
-                    <div class="icon-dot">🕺</div>
+                    <div class="icon-dot">@include("partials.line-icon", ["name" => "note"])</div>
                     <h3>Prom &amp; pensi sekolah</h3>
                     <p>
                         Panitia bisa fokus jalannya acara. Dokumentasinya datang sendiri dari
@@ -181,7 +181,7 @@
                 </div>
 
                 <div class="card reveal">
-                    <div class="icon-dot">🏢</div>
+                    <div class="icon-dot">@include("partials.line-icon", ["name" => "building"])</div>
                     <h3>Gathering kantor</h3>
                     <p>
                         Outing, town hall, anniversary perusahaan. Album internal langsung jadi
@@ -190,7 +190,7 @@
                 </div>
 
                 <div class="card reveal">
-                    <div class="icon-dot">🎂</div>
+                    <div class="icon-dot">@include("partials.line-icon", ["name" => "cake"])</div>
                     <h3>Ulang tahun &amp; syukuran</h3>
                     <p>
                         Acara yang terlalu santai untuk menyewa fotografer, tapi terlalu berharga
@@ -199,7 +199,7 @@
                 </div>
 
                 <div class="card reveal">
-                    <div class="icon-dot">🎪</div>
+                    <div class="icon-dot">@include("partials.line-icon", ["name" => "lantern"])</div>
                     <h3>Festival &amp; acara publik</h3>
                     <p>
                         Sebar QR di beberapa titik, lalu pantau hasilnya masuk secara langsung dari

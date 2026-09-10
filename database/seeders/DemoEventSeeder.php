@@ -8,7 +8,6 @@ use App\Models\EventGuest;
 use App\Models\EventMedia;
 use App\Models\Plan;
 use App\Models\Subscription;
-use App\Services\DemoPhotoFactory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -37,20 +36,20 @@ class DemoEventSeeder extends Seeder
 
         $this->seedEvent([
             'client' => [
-                'email' => 'emma.rio@example.com',
-                'name' => 'Emma Kirana',
+                'email' => 'suci.rendy@example.com',
+                'name' => 'Suci Rahmawati',
                 'phone' => '081234567890',
-                'instagram' => '@emma.rio',
+                'instagram' => '@suci.rendy',
                 'city' => 'Bandung',
             ],
             'plan' => $signature,
             'event' => [
-                'slug' => 'pernikahan-emma',
-                'title' => 'Pernikahan Emma & Rio',
+                'slug' => 'suci-rendy',
+                'title' => 'Pernikahan Suci & Rendy',
                 'event_type' => 'wedding',
-                'bride_name' => 'Emma',
-                'groom_name' => 'Rio',
-                'hashtag' => '#EmmaRioForever',
+                'bride_name' => 'Suci',
+                'groom_name' => 'Rendy',
+                'hashtag' => '#SuciRendyForever',
                 'venue' => 'Padma Hotel Ballroom',
                 'city' => 'Bandung',
                 'address' => 'Jl. Ranca Bentang No. 56-58, Bandung',
@@ -176,16 +175,28 @@ class DemoEventSeeder extends Seeder
         $this->command->line("  Media  : {$created} foto dari " . count($spec['guests']) . ' tamu');
     }
 
-    /** Buat satu foto contoh bergaya film dan catat di database. */
+    /** Foto contoh diambil dari pustaka di public/assets/media/showcase. */
+    private function library(): array
+    {
+        static $files = null;
+
+        return $files ??= glob(public_path('assets/media/showcase/*.jpg')) ?: [];
+    }
+
+    /** Salin satu foto pustaka ke penyimpanan acara dan catat di database. */
     private function makePhoto(Event $event, EventGuest $guest, int $index): void
     {
-        $width = 900;
-        $height = 1200;
+        $library = $this->library();
 
-        // Komposisinya dibuat DemoPhotoFactory: siluet orang dengan
-        // cahaya belakang, supaya galeri contoh terbaca sebagai foto
-        // acara sungguhan, bukan kotak gradasi.
-        $image = app(DemoPhotoFactory::class)->render($width, $height, $index);
+        if ($library === []) {
+            $this->command->warn('Pustaka foto contoh kosong: public/assets/media/showcase.');
+
+            return;
+        }
+
+        $image = imagecreatefromjpeg($library[$index % count($library)]);
+        $width = imagesx($image);
+        $height = imagesy($image);
 
         $folder = 'events/' . $event->slug . '/photo';
         $filename = Str::uuid()->toString() . '.jpg';

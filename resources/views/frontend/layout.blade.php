@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Shippori+Mincho:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" />
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Shippori+Mincho:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" />
 
     <link rel="stylesheet" href="{{ asset('assets/css/setsuna.css') }}" />
 
@@ -76,7 +76,30 @@
 
             <div class="site-footer__base">
                 <span>&copy; {{ date('Y') }} {{ $brand['name'] }}. Semua momen tersimpan rapi.</span>
-                <span>Dibuat untuk acara yang layak dikenang.</span>
+
+                @php
+                    $owner = $appSettings['owner_name'] ?? 'Rendy Irawan';
+                    $github = $appSettings['owner_github'] ?? null;
+                    $linkedin = $appSettings['owner_linkedin'] ?? null;
+                @endphp
+
+                <span class="footer-credit">
+                    Dibuat oleh <b>{{ $owner }}</b>
+
+                    @if ($github)
+                        <a href="{{ $github }}" target="_blank" rel="noopener noreferrer" aria-label="GitHub {{ $owner }}">
+                            @include('partials.line-icon', ['name' => 'github'])
+                            <span>GitHub</span>
+                        </a>
+                    @endif
+
+                    @if ($linkedin)
+                        <a href="{{ $linkedin }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn {{ $owner }}">
+                            @include('partials.line-icon', ['name' => 'linkedin'])
+                            <span>LinkedIn</span>
+                        </a>
+                    @endif
+                </span>
             </div>
         </div>
     </footer>
