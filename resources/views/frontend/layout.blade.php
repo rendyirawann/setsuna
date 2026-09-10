@@ -132,6 +132,8 @@
         })();
     </script>
 
+    <script src="{{ \App\Support\Asset::v('assets/js/setsuna-hero.js') }}" defer></script>
+
     @stack('scripts')
 
     {{-- Kredit pembuat: CTRL + SHIFT + ALT + R --}}

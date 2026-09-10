@@ -1612,3 +1612,16 @@ select option { background: var(--panel); color: var(--cream); }
     .mosaic figure:nth-child(2),
     .mosaic figure:nth-child(3) { transform: none; }
 }
+
+/* Hero mengikuti kursor. Foto diperbesar sedikit lebih dulu supaya
+   punya ruang untuk bergeser tanpa memperlihatkan tepi kosong.
+   Tanpa JS (atau tanpa kursor) kelas ini tidak pernah dipasang dan
+   fotonya tetap di posisi bawaannya. */
+.hero--parallax .hero__bg-img {
+    transform: scale(1.08);
+    will-change: transform;
+
+    /* Tanpa transisi: pelembutannya sudah dikerjakan per frame di JS.
+       Menumpuk keduanya membuat gerakannya terasa tertinggal. */
+    transition: none;
+}
