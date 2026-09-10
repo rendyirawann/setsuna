@@ -1319,3 +1319,61 @@ select option { background: var(--panel); color: var(--cream); }
 
 .footer-credit a:hover { color: var(--gold); border-color: var(--line-strong); }
 .footer-credit svg { width: 15px; height: 15px; }
+
+/* =========================================================================
+   HERO — setelan berlaku
+   -------------------------------------------------------------------------
+   Blok ini yang menentukan tampilan hero; aturan hero di atasnya adalah
+   percobaan sebelumnya dan ditimpa di sini.
+
+   Tiga hal yang harus tetap begini:
+   1. Gambarnya sudah dipotong dari sisi kiri (lihat berkas hero.jpg),
+      karena sisi itu membawa judul bawaan gambar. Kalau gambar utuh
+      dipasang, judul itu ikut tampil dan menabrak judul halaman.
+   2. Fotonya diredupkan, bukan ditampilkan penuh — perannya latar.
+   3. Mosaik foto tetap ada di kanan.
+   ========================================================================= */
+
+.hero {
+    min-height: clamp(520px, 76vh, 780px);
+    display: flex;
+    align-items: center;
+}
+
+.hero__bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0.6;
+    filter: contrast(1.05) saturate(1.02);
+}
+
+.hero__veil {
+    background:
+        linear-gradient(90deg,
+            rgba(11, 10, 9, 0.96) 0%,
+            rgba(11, 10, 9, 0.88) 32%,
+            rgba(11, 10, 9, 0.62) 60%,
+            rgba(11, 10, 9, 0.52) 82%,
+            rgba(11, 10, 9, 0.82) 100%),
+        radial-gradient(ellipse 70% 90% at 20% 50%, rgba(11, 10, 9, 0.8), transparent 72%),
+        linear-gradient(0deg, var(--ink) 0%, rgba(11, 10, 9, 0.28) 22%, transparent 56%, rgba(11, 10, 9, 0.5) 100%);
+}
+
+.hero__inner {
+    grid-template-columns: 1.02fr 0.98fr;
+    align-items: center;
+    z-index: 2;
+}
+
+.hero .mosaic { display: grid; }
+
+@media (max-width: 940px) {
+    .hero { min-height: auto; }
+    .hero__inner { grid-template-columns: 1fr; }
+    .hero .mosaic { display: none; }
+    .hero__veil {
+        background: linear-gradient(180deg, rgba(11, 10, 9, 0.9), rgba(11, 10, 9, 0.84) 50%, var(--ink) 100%);
+    }
+}
