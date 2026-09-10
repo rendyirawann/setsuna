@@ -1,0 +1,485 @@
+/* =========================================================================
+   Kamera tamu — tampilan layar penuh yang terbuka langsung setelah QR
+   dipindai. Dirancang untuk dipakai satu tangan, di ruangan gelap.
+   ========================================================================= */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    background: #000;
+    overscroll-behavior: none;
+}
+
+body.cam-body {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    color: #f7ebd9;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.cam {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Pakai dvh supaya bar browser mobile tidak memotong tombol shutter. */
+@supports (height: 100dvh) {
+    .cam { height: 100dvh; }
+}
+
+/* ------------------------------------------------------------- Viewfinder */
+
+.cam__stage {
+    position: absolute;
+    inset: 0;
+}
+
+#cam-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    background: #000;
+    transition: filter 0.35s ease;
+}
+
+#cam-video.is-mirrored { transform: scaleX(-1); }
+
+.cam__grain,
+.cam__vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.cam__grain {
+    opacity: 0.3;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    animation: grainShift 0.7s steps(3) infinite;
+}
+
+@keyframes grainShift {
+    0% { transform: translate(0, 0); }
+    33% { transform: translate(-3%, 2%); }
+    66% { transform: translate(2%, -3%); }
+    100% { transform: translate(0, 0); }
+}
+
+.cam__vignette {
+    background: radial-gradient(ellipse at center, transparent 42%, rgba(0, 0, 0, 0.62) 100%);
+}
+
+.cam__flash {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.cam__flash.is-firing { animation: flashPop 0.42s ease-out; }
+
+@keyframes flashPop {
+    0% { opacity: 0.92; }
+    100% { opacity: 0; }
+}
+
+/* -------------------------------------------------------------- Bar atas */
+
+.cam__top {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 10px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent);
+}
+
+.cam__event {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.cam__event img { width: 26px; height: 26px; }
+
+.cam__event span {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.05rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cam__tools { display: flex; gap: 8px; flex-shrink: 0; }
+
+.cam-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(247, 235, 217, 0.2);
+    background: rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(10px);
+    color: #f7ebd9;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.cam-icon:active { transform: scale(0.92); }
+.cam-icon.is-on { background: rgba(244, 223, 192, 0.9); color: #17120c; border-color: transparent; }
+
+/* --------------------------------------------------------- Penghitung roll */
+
+.cam__counter {
+    position: relative;
+    z-index: 5;
+    margin: auto auto 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 20px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.32);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(247, 235, 217, 0.12);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    pointer-events: none;
+}
+
+.cam__counter .n {
+    font-size: 1.05rem;
+    color: rgba(247, 235, 217, 0.28);
+    line-height: 1;
+}
+
+.cam__counter .n--now {
+    font-size: 2.5rem;
+    color: #f4dfc0;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+}
+
+.cam__counter .label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(247, 235, 217, 0.5);
+    margin-left: 4px;
+}
+
+/* --------------------------------------------------------------- Bar bawah */
+
+.cam__bottom {
+    position: relative;
+    z-index: 5;
+    margin-top: auto;
+    padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.82) 42%, transparent);
+}
+
+.cam__modes {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.cam__mode {
+    border: 0;
+    background: transparent;
+    color: rgba(247, 235, 217, 0.5);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.2s, background 0.2s;
+    position: relative;
+}
+
+.cam__mode.is-on { color: #17120c; background: linear-gradient(135deg, #f4dfc0, #c99b62); font-weight: 600; }
+.cam__mode:disabled { opacity: 0.32; cursor: not-allowed; }
+
+.cam__mode small {
+    display: block;
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    opacity: 0.75;
+    margin-top: 1px;
+}
+
+.cam__actions {
+    display: grid;
+    grid-template-columns: 64px 1fr 64px;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Tombol rana */
+
+.shutter {
+    justify-self: center;
+    width: 82px;
+    height: 82px;
+    border-radius: 50%;
+    border: 3px solid rgba(247, 235, 217, 0.85);
+    background: transparent;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    position: relative;
+    padding: 0;
+    transition: transform 0.15s;
+}
+
+.shutter:active { transform: scale(0.94); }
+.shutter:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.shutter__core {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f7ebd9, #d9b689);
+    transition: all 0.25s cubic-bezier(0.3, 0.9, 0.3, 1);
+}
+
+.shutter.is-recording .shutter__core {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: #e5534b;
+}
+
+.shutter__ring {
+    position: absolute;
+    inset: -3px;
+    transform: rotate(-90deg);
+    pointer-events: none;
+}
+
+.shutter__ring circle {
+    fill: none;
+    stroke: #e5534b;
+    stroke-width: 3;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.1s linear;
+}
+
+/* Thumbnail roll */
+
+.roll-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(247, 235, 217, 0.24);
+    background: rgba(255, 255, 255, 0.05);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    position: relative;
+    padding: 0;
+}
+
+.roll-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+.roll-thumb b {
+    position: absolute;
+    right: -4px;
+    top: -4px;
+    background: linear-gradient(135deg, #f4dfc0, #c99b62);
+    color: #17120c;
+    font-size: 0.62rem;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    padding: 0 5px;
+}
+
+/* ------------------------------------------------------------ Hamparan */
+
+.cam__sheet {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    background: rgba(8, 7, 6, 0.94);
+    backdrop-filter: blur(22px);
+    display: flex;
+    flex-direction: column;
+    padding: calc(env(safe-area-inset-top, 0px) + 26px) 22px calc(env(safe-area-inset-bottom, 0px) + 26px);
+    overflow-y: auto;
+}
+
+.cam__sheet[hidden] { display: none; }
+
+.cam__sheet h2 {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 2rem;
+    font-weight: 500;
+    margin: 0 0 0.4rem;
+    line-height: 1.1;
+}
+
+.cam__sheet p { color: #a4927d; font-size: 0.92rem; margin: 0 0 1.4rem; line-height: 1.6; }
+
+.cam__sheet .eyebrow {
+    font-size: 0.66rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #8a7a68;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.cam-field input {
+    width: 100%;
+    padding: 15px 18px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(247, 235, 217, 0.16);
+    border-radius: 14px;
+    color: #f7ebd9;
+    font-size: 1.05rem;
+    font-family: inherit;
+}
+
+.cam-field input:focus { outline: none; border-color: #e6c79a; }
+
+.cam-btn {
+    width: 100%;
+    padding: 15px 22px;
+    border-radius: 999px;
+    border: 0;
+    background: linear-gradient(135deg, #f4dfc0, #c99b62);
+    color: #17120c;
+    font-size: 0.98rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 16px;
+}
+
+.cam-btn--ghost {
+    background: transparent;
+    border: 1px solid rgba(247, 235, 217, 0.24);
+    color: #f7ebd9;
+    font-weight: 400;
+}
+
+.cam-btn:disabled { opacity: 0.55; }
+
+.cam__sheet-mid { margin: auto 0; }
+
+.cam__quota-list {
+    display: grid;
+    gap: 10px;
+    margin: 20px 0;
+    padding: 18px 0;
+    border-top: 1px solid rgba(247, 235, 217, 0.1);
+    border-bottom: 1px solid rgba(247, 235, 217, 0.1);
+}
+
+.cam__quota-list div { display: flex; justify-content: space-between; font-size: 0.9rem; }
+.cam__quota-list b { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: #e6c79a; font-weight: 500; }
+
+/* Grid roll pribadi */
+
+.roll-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.roll-grid figure {
+    margin: 0;
+    aspect-ratio: 3 / 4;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #1a1613;
+    position: relative;
+}
+
+.roll-grid img, .roll-grid video { width: 100%; height: 100%; object-fit: cover; }
+
+.roll-grid .tag {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 2px 6px;
+    border-radius: 999px;
+    color: #f4dfc0;
+}
+
+.sheet-close {
+    align-self: flex-end;
+    margin-bottom: 10px;
+}
+
+/* ------------------------------------------------------------------ Toast */
+
+.cam__toast {
+    position: absolute;
+    left: 50%;
+    bottom: 190px;
+    transform: translate(-50%, 12px);
+    z-index: 30;
+    background: rgba(12, 10, 9, 0.92);
+    border: 1px solid rgba(247, 235, 217, 0.16);
+    color: #f7ebd9;
+    padding: 11px 20px;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+    max-width: 88vw;
+    text-align: center;
+}
+
+.cam__toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+.cam__toast.is-bad { border-color: rgba(229, 83, 75, 0.5); }
+
+/* Indikator unggah */
+
+.cam__uploading {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 62px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 6;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #e6c79a;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 6px 14px;
+    border-radius: 999px;
+    display: none;
+}
+
+.cam__uploading.is-on { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+    .cam__grain { animation: none; }
+    * { transition-duration: 0.01ms !important; }
+}
