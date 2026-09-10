@@ -1379,3 +1379,209 @@ select option { background: var(--panel); color: var(--cream); }
         background: linear-gradient(180deg, rgba(11, 10, 9, 0.9), rgba(11, 10, 9, 0.84) 50%, var(--ink) 100%);
     }
 }
+
+/* =========================================================================
+   Penampil satu momen (lightbox)
+   -------------------------------------------------------------------------
+   Semua gaya ada di sini, bukan sebagai style inline di elemennya.
+   Sebelumnya elemen itu membawa style="display:flex", dan inline style
+   mengalahkan atribut [hidden] — akibatnya overlay tidak pernah benar-
+   benar tertutup dan tombol Tutup terasa mati.
+   ========================================================================= */
+
+.lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 600;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px;
+    background: rgba(6, 5, 5, 0.965);
+    backdrop-filter: blur(22px);
+}
+
+.lightbox[hidden] { display: none !important; }
+
+.lightbox__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.lightbox__by { font-size: 0.86rem; color: var(--muted); }
+.lightbox__tools { display: flex; gap: 10px; margin-left: auto; }
+
+.lightbox__stage {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    min-height: 0;
+}
+
+.lightbox__stage img,
+.lightbox__stage video {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.lightbox__stage [hidden] { display: none !important; }
+
+/* --- Tombol unduh di tiap ubin --- */
+
+.tile { position: relative; }
+
+.tile__dl {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(11, 10, 9, 0.62);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(247, 235, 217, 0.18);
+    color: var(--cream);
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.2s, transform 0.2s, background 0.2s;
+}
+
+.tile__dl svg { width: 15px; height: 15px; }
+
+.tile:hover .tile__dl,
+.tile:focus-within .tile__dl { opacity: 1; transform: none; }
+
+.tile__dl:hover { background: rgba(244, 223, 192, 0.92); color: #17120c; }
+
+/* Di layar sentuh tidak ada hover, jadi tombolnya selalu tampak. */
+@media (hover: none) {
+    .tile__dl { opacity: 1; transform: none; }
+}
+
+/* Ubin baru yang masuk saat album menyala. */
+@keyframes tileIn {
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+}
+
+.tile--fresh { animation: tileIn 0.55s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+.live-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.74rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted-2);
+}
+
+.live-dot i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6fbf87;
+    box-shadow: 0 0 0 0 rgba(111, 191, 135, 0.6);
+    animation: livePulse 2.2s infinite;
+}
+
+@keyframes livePulse {
+    70% { box-shadow: 0 0 0 8px rgba(111, 191, 135, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(111, 191, 135, 0); }
+}
+
+/* Ubin kini berupa wadah: tombol pembuka di dalamnya, tombol unduh
+   di atasnya. Tombol pembuka direset agar terlihat seperti gambar biasa. */
+.tile__open {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+    font: inherit;
+    color: inherit;
+}
+
+.tile__open img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* =========================================================================
+   Tirai pembuka portal
+   -------------------------------------------------------------------------
+   Tampil 1,2 detik saat portal acara dibuka: ensō menggambar dirinya,
+   nama pasangan muncul, lalu tirainya terangkat.
+
+   Dibuat dengan CSS dan Web Animations API, tanpa pustaka animasi —
+   halaman ini sering dibuka di jaringan venue yang lambat, jadi jangan
+   ditambahi berkas yang harus diunduh dulu.
+   ========================================================================= */
+
+.curtain {
+    position: fixed;
+    inset: 0;
+    z-index: 800;
+    display: grid;
+    place-items: center;
+    background: var(--ink);
+    text-align: center;
+    padding: 24px;
+}
+
+.curtain[hidden] { display: none !important; }
+
+.curtain__enso { width: 96px; height: 96px; margin: 0 auto 20px; display: block; }
+
+.curtain__enso path {
+    stroke-dasharray: 170;
+    stroke-dashoffset: 170;
+    animation: ensoDraw 1s cubic-bezier(0.35, 0, 0.2, 1) forwards;
+}
+
+@keyframes ensoDraw {
+    to { stroke-dashoffset: 0; }
+}
+
+.curtain__kana {
+    font-family: var(--mincho);
+    font-size: 0.72rem;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    opacity: 0;
+    animation: curtainRise 0.7s ease 0.25s forwards;
+}
+
+.curtain__name {
+    font-family: var(--serif);
+    font-size: clamp(1.7rem, 5vw, 2.6rem);
+    color: var(--cream);
+    margin: 10px 0 0;
+    opacity: 0;
+    animation: curtainRise 0.7s ease 0.45s forwards;
+}
+
+@keyframes curtainRise {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* Tanpa JS tirainya tetap hilang, jadi halaman tidak pernah terkunci. */
+.curtain { animation: curtainOut 0.4s ease 1.2s forwards; }
+
+@keyframes curtainOut {
+    to { opacity: 0; visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .curtain,
+    .curtain__enso path,
+    .curtain__kana,
+    .curtain__name { animation-duration: 0.01ms; animation-delay: 0s; }
+}

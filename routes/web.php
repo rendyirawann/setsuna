@@ -213,4 +213,8 @@ Route::prefix('{event:slug}')
 
         Route::get('/api/kuota', [CameraController::class, 'quota'])->name('portal.quota');
         Route::get('/api/roll', [CameraController::class, 'roll'])->name('portal.roll.api');
+
+        // Umpan media terbaru: album dan roll memakainya untuk memuat
+        // jepretan baru tanpa perlu memuat ulang halaman.
+        Route::get('/api/media', [PortalController::class, 'feed'])->name('portal.feed');
     });

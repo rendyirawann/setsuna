@@ -27,7 +27,7 @@
             </div>
 
             @if ($media->count())
-                <div class="gallery-grid">
+                <div class="gallery-grid" data-live-grid="mine">
                     @foreach ($media as $item)
                         @include('portal._tile', ['item' => $item, 'event' => $event])
                     @endforeach

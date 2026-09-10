@@ -545,3 +545,202 @@ body.cam-body {
     .cam__counter .n--now { font-size: 1.35rem; }
     .cam__counter .label { max-width: 40px; font-size: 0.46rem; }
 }
+
+/* =========================================================================
+   Penghitung sisa jatah — di bawah nama acara
+   -------------------------------------------------------------------------
+   Menempel di bawah bar atas, rata kiri sejajar nama acara. Di tengah
+   layar ia menutupi objek yang dibidik; di pojok bawah ia berebut ruang
+   dengan tombol rana.
+   ========================================================================= */
+
+/* Kembalikan bar aksi ke tiga kolom seimbang. */
+.cam__actions {
+    display: grid;
+    grid-template-columns: 64px 1fr 64px;
+    align-items: center;
+    justify-content: initial;
+    position: static;
+    gap: 12px;
+}
+
+.shutter {
+    position: relative;
+    left: auto;
+    transform: none;
+    justify-self: center;
+}
+
+.shutter:active { transform: scale(0.94); }
+
+.cam__counter {
+    position: relative;
+    z-index: 5;
+    align-self: flex-start;
+    margin: 2px 0 0 18px;
+    padding: 6px 16px 6px 14px;
+    gap: 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(247, 235, 217, 0.12);
+}
+
+.cam__counter .n { font-size: 0.9rem; }
+.cam__counter .n--now { font-size: 1.85rem; }
+
+.cam__counter .label {
+    font-size: 0.54rem;
+    letter-spacing: 0.2em;
+    max-width: none;
+    margin-left: 3px;
+}
+
+/* Indikator unggah digeser ke bawah penghitung. */
+.cam__uploading { top: calc(env(safe-area-inset-top, 0px) + 120px); }
+
+/* =========================================================================
+   Penghitung bergulir
+   -------------------------------------------------------------------------
+   Angka disusun vertikal seperti penghitung bingkai pada kamera film.
+   Saat satu jatah terpakai, seluruh kolom turun satu langkah: angka yang
+   habis jatuh ke bawah, penggantinya masuk dari atas. Tepi atas dan
+   bawah dipudarkan dengan mask, jadi angka tetangga hanya terlihat
+   samar — memberi kesan gulungan yang panjang.
+   ========================================================================= */
+
+.cam__reel {
+    --slot: 26px;
+
+    height: calc(var(--slot) * 3);
+    width: 2.6em;
+    overflow: hidden;
+    position: relative;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 32%, #000 68%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 32%, #000 68%, transparent 100%);
+}
+
+.cam__reel-track {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+}
+
+.cam__reel-n {
+    height: var(--slot);
+    display: grid;
+    place-items: center;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    line-height: 1;
+    font-size: 0.86rem;
+    color: rgba(247, 235, 217, 0.3);
+    transition: color 0.35s ease, font-size 0.35s ease;
+}
+
+.cam__reel-n.is-now {
+    font-size: 1.55rem;
+    color: #f4dfc0;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.7);
+}
+
+.cam__counter { align-items: center; }
+
+/* Tombol besar untuk balik kamera. */
+.cam-icon--lg {
+    width: 52px;
+    height: 52px;
+    justify-self: center;
+}
+
+.cam-icon--lg svg { width: 23px; height: 23px; }
+
+@media (prefers-reduced-motion: reduce) {
+    .cam__reel-track { transition: none !important; }
+}
+
+/* =========================================================================
+   Pratinjau satu hasil di dalam kamera
+   ========================================================================= */
+
+.cam__viewer {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    background: rgba(6, 5, 5, 0.96);
+    backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+    gap: 12px;
+}
+
+.cam__viewer[hidden] { display: none !important; }
+
+.cam__viewer-close { align-self: flex-end; flex-shrink: 0; }
+
+.cam__viewer-stage {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    min-height: 0;
+}
+
+.cam__viewer-stage img,
+.cam__viewer-stage video {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.cam__viewer-stage [hidden] { display: none !important; }
+
+.cam__viewer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+    font-size: 0.82rem;
+    color: #a4927d;
+}
+
+/* Item roll bisa diketuk untuk dibuka besar. */
+.roll-item {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #1a1613;
+    cursor: pointer;
+}
+
+.roll-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.roll-item .tag {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 2px 6px;
+    border-radius: 999px;
+    color: #f4dfc0;
+}
+
+.roll-play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.92);
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+}

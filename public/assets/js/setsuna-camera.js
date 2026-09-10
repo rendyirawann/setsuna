@@ -31,9 +31,7 @@
         ring: document.getElementById('cam-ring'),
         flash: document.getElementById('cam-flash'),
         modes: Array.prototype.slice.call(document.querySelectorAll('[data-mode]')),
-        counterNow: document.getElementById('cam-count-now'),
-        counterPrev: document.getElementById('cam-count-prev'),
-        counterNext: document.getElementById('cam-count-next'),
+        reel: document.getElementById('cam-reel'),
         counterLabel: document.getElementById('cam-count-label'),
         toast: document.getElementById('cam-toast'),
         uploading: document.getElementById('cam-uploading'),
@@ -53,7 +51,14 @@
         torch: document.getElementById('cam-torch'),
         error: document.getElementById('cam-error'),
         errorText: document.getElementById('cam-error-text'),
-        retry: document.getElementById('cam-retry')
+        retry: document.getElementById('cam-retry'),
+        viewer: document.getElementById('cam-viewer'),
+        viewerStage: document.querySelector('.cam__viewer-stage'),
+        viewerImage: document.getElementById('cam-viewer-image'),
+        viewerVideo: document.getElementById('cam-viewer-video'),
+        viewerLabel: document.getElementById('cam-viewer-label'),
+        viewerDownload: document.getElementById('cam-viewer-download'),
+        viewerClose: document.getElementById('cam-viewer-close')
     };
 
     var state = {
@@ -173,9 +178,7 @@
         });
 
         var left = remaining(state.mode);
-        el.counterNow.textContent = left;
-        el.counterPrev.textContent = left + 1;
-        el.counterNext.textContent = Math.max(0, left - 1);
+        setCount(left);
         el.counterLabel.textContent = labelFor(state.mode);
 
         el.shutter.disabled = left <= 0 || state.busy;
@@ -185,6 +188,75 @@
         if (totalRemaining() <= 0 && !state.busy) {
             showDone();
         }
+    }
+
+    /**
+     * Penghitung bergulir.
+     *
+     * Gulungan berisi lima angka, kecil di atas besar di bawah, dengan
+     * angka sekarang di tengah. Berkurang satu berarti gulungan turun
+     * satu langkah: angka yang terpakai jatuh keluar di bawah dan
+     * penggantinya masuk dari atas. Perubahan yang lompat (ganti mode,
+     * kuota disegarkan dari server) digambar langsung tanpa animasi.
+     */
+    var SLOT = 26;
+    var reelValue = null;
+    var reelBusy = false;
+
+    function paintReel(value) {
+        var html = '';
+
+        for (var offset = -2; offset <= 2; offset++) {
+            var n = value + offset;
+            var isNow = offset === 0;
+
+            html += '<span class="cam__reel-n' + (isNow ? ' is-now' : '') + '">'
+                + (n >= 0 ? n : '')
+                + '</span>';
+        }
+
+        el.reel.innerHTML = html;
+    }
+
+    function restReel() {
+        el.reel.style.transition = 'none';
+        el.reel.style.transform = 'translateY(-' + SLOT + 'px)';
+        // Paksa reflow supaya transisi berikutnya benar-benar berjalan.
+        void el.reel.offsetHeight;
+        el.reel.style.transition = '';
+    }
+
+    function setCount(value) {
+        if (!el.reel) {
+            return;
+        }
+
+        if (reelValue === value) {
+            return;
+        }
+
+        var steppedDown = reelValue !== null && value === reelValue - 1;
+
+        if (!steppedDown || reelBusy) {
+            reelValue = value;
+            paintReel(value);
+            restReel();
+
+            return;
+        }
+
+        reelBusy = true;
+        reelValue = value;
+
+        // Turunkan gulungan satu langkah, lalu gambar ulang di posisi diam.
+        el.reel.style.transition = 'transform .5s cubic-bezier(.2,.9,.25,1)';
+        el.reel.style.transform = 'translateY(0)';
+
+        window.setTimeout(function () {
+            paintReel(value);
+            restReel();
+            reelBusy = false;
+        }, 520);
     }
 
     function labelFor(mode) {
@@ -613,19 +685,131 @@
                     return;
                 }
 
+                // Tiap hasil dibungkus tombol supaya bisa dibuka besar —
+                // video dan boomerang tidak bisa dinilai dari poster diam.
                 el.rollGrid.innerHTML = data.media.map(function (item) {
-                    var tag = item.type === 'photo' ? '' : '<span class="tag">' + (item.type === 'video' ? 'video' : 'boom') + '</span>';
-                    var media = item.type === 'photo'
-                        ? '<img src="' + item.preview + '" alt="" loading="lazy" />'
-                        : '<video src="' + item.url + '" muted playsinline preload="metadata"'
-                          + (item.preview ? ' poster="' + item.preview + '"' : '') + '></video>';
+                    var isPhoto = item.type === 'photo';
+                    var tag = isPhoto
+                        ? ''
+                        : '<span class="tag">' + (item.type === 'video' ? 'video' : 'boom') + '</span>';
+                    var play = isPhoto ? '' : '<span class="roll-play" aria-hidden="true">▶</span>';
 
-                    return '<figure style="filter:' + cfg.preset.css + '">' + media + tag + '</figure>';
+                    return '<button type="button" class="roll-item" data-open-media'
+                        + ' data-type="' + item.type + '"'
+                        + ' data-url="' + item.url + '"'
+                        + ' data-preview="' + (item.preview || '') + '"'
+                        + ' style="filter:' + cfg.preset.css + '">'
+                        + '<img src="' + (item.preview || item.url) + '" alt="" loading="lazy" />'
+                        + tag + play
+                        + '</button>';
                 }).join('');
             })
             .catch(function () {
                 el.rollGrid.innerHTML = '<p style="grid-column:1/-1">Gagal memuat roll.</p>';
             });
+    }
+
+    // ------------------------------------------------------------------
+    // Pratinjau satu hasil
+    // ------------------------------------------------------------------
+
+    var boomerangFrame = null;
+
+    function stopBoomerang() {
+        if (boomerangFrame) {
+            cancelAnimationFrame(boomerangFrame);
+            boomerangFrame = null;
+        }
+    }
+
+    /**
+     * Boomerang diputar maju lalu mundur dengan menggeser currentTime;
+     * playbackRate negatif tidak didukung browser mana pun.
+     */
+    function playBoomerang(video) {
+        var direction = 1;
+        var last = performance.now();
+
+        video.muted = true;
+        video.play().catch(function () {});
+
+        function step(now) {
+            var delta = (now - last) / 1000;
+            last = now;
+
+            if (direction === 1) {
+                if (video.currentTime >= (video.duration || 1) - 0.06) {
+                    direction = -1;
+                    video.pause();
+                }
+            } else {
+                video.currentTime = Math.max(0, video.currentTime - delta);
+
+                if (video.currentTime <= 0.04) {
+                    direction = 1;
+                    video.play().catch(function () {});
+                }
+            }
+
+            boomerangFrame = requestAnimationFrame(step);
+        }
+
+        boomerangFrame = requestAnimationFrame(step);
+    }
+
+    function openViewer(button) {
+        var type = button.getAttribute('data-type');
+        var url = button.getAttribute('data-url');
+        var preview = button.getAttribute('data-preview');
+
+        stopBoomerang();
+
+        el.viewerLabel.textContent = type === 'photo'
+            ? 'Foto'
+            : (type === 'video' ? 'Video' : 'Boomerang');
+
+        el.viewerDownload.href = url;
+
+        if (type === 'photo') {
+            el.viewerVideo.hidden = true;
+            el.viewerVideo.removeAttribute('src');
+            el.viewerImage.hidden = false;
+            el.viewerImage.src = url;
+        } else {
+            el.viewerImage.hidden = true;
+            el.viewerImage.removeAttribute('src');
+            el.viewerVideo.hidden = false;
+            el.viewerVideo.src = url;
+
+            if (preview) {
+                el.viewerVideo.poster = preview;
+            }
+
+            el.viewerVideo.loop = type === 'video';
+            el.viewerVideo.controls = type === 'video';
+            el.viewerVideo.muted = type !== 'video';
+
+            if (type === 'boomerang') {
+                el.viewerVideo.addEventListener('loadedmetadata', function handler() {
+                    el.viewerVideo.removeEventListener('loadedmetadata', handler);
+                    playBoomerang(el.viewerVideo);
+                });
+            } else {
+                el.viewerVideo.play().catch(function () {});
+            }
+        }
+
+        // Filter film ikut diterapkan supaya pratinjau sama dengan galeri.
+        el.viewerStage.style.filter = type === 'photo' ? 'none' : cfg.preset.css;
+        el.viewer.hidden = false;
+    }
+
+    function closeViewer() {
+        stopBoomerang();
+        el.viewer.hidden = true;
+        el.viewerVideo.pause();
+        el.viewerVideo.removeAttribute('src');
+        el.viewerImage.removeAttribute('src');
     }
 
     // ------------------------------------------------------------------
@@ -731,6 +915,17 @@
 
     el.rollBtn.addEventListener('click', openRoll);
     el.rollClose.addEventListener('click', function () { el.rollSheet.hidden = true; });
+
+    // Ketuk satu hasil di roll untuk membukanya besar.
+    el.rollGrid.addEventListener('click', function (event) {
+        var button = event.target.closest('[data-open-media]');
+
+        if (button) {
+            openViewer(button);
+        }
+    });
+
+    el.viewerClose.addEventListener('click', closeViewer);
     el.gateForm.addEventListener('submit', submitName);
     el.retry.addEventListener('click', startCamera);
 

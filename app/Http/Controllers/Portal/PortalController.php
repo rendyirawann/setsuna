@@ -8,6 +8,8 @@ use App\Models\EventGuest;
 use App\Models\EventMedia;
 use App\Services\CaptureService;
 use App\Support\FilmPresets;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -108,6 +110,60 @@ class PortalController extends Controller
             'album' => $guest,
             'guest' => $this->guest($request, $event),
             'media' => $guest->media()->visible()->latest('captured_at')->get(),
+        ]);
+    }
+
+    /**
+     * Umpan media terbaru untuk album dan roll.
+     *
+     * Halaman memanggil ini berkala supaya jepretan yang baru masuk
+     * langsung muncul tanpa tamu perlu memuat ulang — tidak menunggu
+     * jatah seseorang habis.
+     */
+    public function feed(Request $request, Event $event): JsonResponse
+    {
+        $viewer = $this->guest($request, $event);
+        $scope = $request->query('scope') === 'mine' ? 'mine' : 'all';
+
+        if ($scope === 'mine') {
+            if (! $viewer) {
+                return response()->json(['media' => []]);
+            }
+
+            $query = $viewer->media()->whereIn('status', ['approved', 'pending']);
+        } else {
+            if (! $event->isGalleryVisible()) {
+                return response()->json(['media' => [], 'locked' => true]);
+            }
+
+            $query = $event->media()->visible()->with('guest:id,name');
+        }
+
+        // Hanya yang lebih baru dari yang sudah dipegang halaman.
+        // Penandanya UTC berakhiran "Z": tanda "+" pada offset zona akan
+        // berubah jadi spasi di query string dan membuat parse gagal.
+        if ($since = $request->query('since')) {
+            try {
+                $query->where('created_at', '>', Carbon::parse($since)->setTimezone(config('app.timezone')));
+            } catch (\Throwable) {
+                // Penanda waktu tidak terbaca: perlakukan sebagai permintaan awal.
+            }
+        }
+
+        $media = $query->latest('created_at')->limit(40)->get();
+
+        return response()->json([
+            'media' => $media->map(fn (EventMedia $item) => [
+                'id' => $item->id,
+                'type' => $item->type,
+                'url' => $item->url(),
+                'preview' => $item->previewUrl(),
+                'by' => $item->guest?->name ?? 'Tamu',
+                'preset' => FilmPresets::css($item->film_preset ?: $event->film_preset),
+                'download' => $event->allow_download ? $item->downloadUrl() : null,
+                'created_at' => $item->created_at->toIso8601String(),
+            ]),
+            'server_time' => now()->utc()->format('Y-m-d\TH:i:s.v\Z'),
         ]);
     }
 

@@ -45,7 +45,7 @@
 
             {{-- ---------------------------------------------------- Mosaik --}}
             @if ($media->count())
-                <div class="gallery-grid">
+                <div class="gallery-grid" data-live-grid="all">
                     @foreach ($media as $item)
                         @include('portal._tile', ['item' => $item, 'event' => $event])
                     @endforeach
@@ -53,8 +53,8 @@
 
                 <div class="pagination-wrap">{{ $media->links() }}</div>
             @else
-                <div class="empty">
-                    <p style="margin:0">Belum ada jepretan di kategori ini.</p>
+                <div class="empty" data-live-empty>
+                    <p style="margin:0">Belum ada jepretan di kategori ini. Halaman ini menyala sendiri begitu ada yang memotret.</p>
                 </div>
             @endif
         </div>

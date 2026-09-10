@@ -18,8 +18,7 @@ use Illuminate\Support\Str;
  * bahwa satu sistem ini melayani acara apa pun yang butuh banyak
  * dokumentasi dari tamunya.
  *
- * Gambarnya dibuat sendiri dengan GD, jadi repo tidak perlu menyimpan
- * berkas biner.
+ * Fotonya diambil dari pustaka public/assets/media/showcase.
  */
 class DemoEventSeeder extends Seeder
 {
@@ -36,20 +35,20 @@ class DemoEventSeeder extends Seeder
 
         $this->seedEvent([
             'client' => [
-                'email' => 'suci.rendy@example.com',
-                'name' => 'Suci Rahmawati',
+                'email' => 'natasha.xavier@example.com',
+                'name' => 'Natasha Larasati',
                 'phone' => '081234567890',
-                'instagram' => '@suci.rendy',
+                'instagram' => '@natasha.xavier',
                 'city' => 'Bandung',
             ],
             'plan' => $signature,
             'event' => [
-                'slug' => 'suci-rendy',
-                'title' => 'Pernikahan Suci & Rendy',
+                'slug' => 'natasha-xavier',
+                'title' => 'Pernikahan Natasha & Xavier',
                 'event_type' => 'wedding',
-                'bride_name' => 'Suci',
-                'groom_name' => 'Rendy',
-                'hashtag' => '#SuciRendyForever',
+                'bride_name' => 'Natasha',
+                'groom_name' => 'Xavier',
+                'hashtag' => '#NatashaXavierForever',
                 'venue' => 'Padma Hotel Ballroom',
                 'city' => 'Bandung',
                 'address' => 'Jl. Ranca Bentang No. 56-58, Bandung',

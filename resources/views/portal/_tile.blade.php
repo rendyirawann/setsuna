@@ -4,22 +4,30 @@
     $presetCss = \App\Support\FilmPresets::css($item->film_preset ?: $event->film_preset);
 @endphp
 
-<button type="button" class="tile reveal" data-lightbox
-    data-type="{{ $item->type }}"
-    data-src="{{ $item->url() }}"
-    data-preview="{{ $item->previewUrl() }}"
-    data-by="{{ $item->guest?->name ?? 'Tamu' }}"
-    data-preset="{{ $presetCss }}"
-    data-download="{{ $event->allow_download ? $item->downloadUrl() : '' }}"
-    style="border:0;padding:0;width:100%;cursor:zoom-in;filter:{{ $item->type === 'photo' ? 'none' : $presetCss }}">
+<div class="tile reveal" data-media-id="{{ $item->id }}" style="filter:{{ $item->type === 'photo' ? 'none' : $presetCss }}">
+    <button type="button" class="tile__open" data-lightbox
+        data-type="{{ $item->type }}"
+        data-src="{{ $item->url() }}"
+        data-preview="{{ $item->previewUrl() }}"
+        data-by="{{ $item->guest?->name ?? 'Tamu' }}"
+        data-preset="{{ $presetCss }}"
+        data-download="{{ $event->allow_download ? $item->downloadUrl() : '' }}">
 
-    <img src="{{ $item->previewUrl() }}" alt="Jepretan {{ $item->guest?->name }}" loading="lazy" />
+        <img src="{{ $item->previewUrl() }}" alt="Jepretan {{ $item->guest?->name }}" loading="lazy" />
 
-    @if ($item->type !== 'photo')
-        <span class="tile__type">{{ $item->type === 'video' ? '▶ video' : '∞ boomerang' }}</span>
+        @if ($item->type !== 'photo')
+            <span class="tile__type">{{ $item->type === 'video' ? '▶ video' : '∞ boomerang' }}</span>
+        @endif
+
+        @if ($item->guest)
+            <span class="tile__by"><i></i>{{ $item->guest->name }}</span>
+        @endif
+    </button>
+
+    @if ($event->allow_download)
+        <a class="tile__dl" href="{{ $item->downloadUrl() }}" download
+            aria-label="Unduh jepretan {{ $item->guest?->name }}">
+            @include('partials.line-icon', ['name' => 'download'])
+        </a>
     @endif
-
-    @if ($item->guest)
-        <span class="tile__by"><i></i>{{ $item->guest->name }}</span>
-    @endif
-</button>
+</div>

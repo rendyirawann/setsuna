@@ -48,6 +48,16 @@
             </div>
         </div>
 
+        {{-- Sisa jatah, tepat di bawah nama acara. Angkanya bergulir
+             seperti penghitung film: yang terpakai jatuh ke bawah,
+             yang berikutnya masuk dari atas. --}}
+        <div class="cam__counter">
+            <div class="cam__reel" aria-live="polite">
+                <div class="cam__reel-track" id="cam-reel"></div>
+            </div>
+            <span class="label" id="cam-count-label">foto tersisa</span>
+        </div>
+
         <div class="cam__uploading" id="cam-uploading">Mengunggah…</div>
 
         {{-- ---------------------------------------------------- Bar bawah --}}
@@ -69,21 +79,10 @@
             </div>
 
             <div class="cam__actions">
-                {{-- Sisa jatah menempel di tombol album, di pojok kiri bawah,
-                     supaya tengah layar bersih untuk tombol rana. --}}
-                <div class="cam__left">
-                    <button type="button" class="roll-thumb" id="cam-roll-btn" aria-label="Lihat rollmu">
-                        <span id="cam-roll-thumb">🎞️</span>
-                        <b id="cam-roll-count" hidden>0</b>
-                    </button>
-
-                    <div class="cam__counter">
-                        <span class="n" id="cam-count-prev">19</span>
-                        <span class="n n--now" id="cam-count-now">18</span>
-                        <span class="n" id="cam-count-next">17</span>
-                        <span class="label" id="cam-count-label">foto tersisa</span>
-                    </div>
-                </div>
+                <button type="button" class="roll-thumb" id="cam-roll-btn" aria-label="Lihat rollmu">
+                    <span id="cam-roll-thumb">🎞️</span>
+                    <b id="cam-roll-count" hidden>0</b>
+                </button>
 
                 <button type="button" class="shutter" id="cam-shutter" aria-label="Ambil">
                     <span class="shutter__core"></span>
@@ -92,8 +91,16 @@
                     </svg>
                 </button>
 
-                <button type="button" class="cam-icon" id="cam-flip" aria-label="Balik kamera"
-                    style="justify-self:center;width:52px;height:52px;font-size:1.2rem">⟳</button>
+                <button type="button" class="cam-icon cam-icon--lg" id="cam-flip" aria-label="Balik kamera depan/belakang">
+                    {{-- Ikon balik kamera: badan kamera dengan dua panah
+                         memutar, supaya tidak tertukar dengan "muat ulang". --}}
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                        stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M3.5 8.5A2.5 2.5 0 0 1 6 6h1.3a1.6 1.6 0 0 0 1.35-.75l.6-.95A1.6 1.6 0 0 1 10.6 3.5h2.8a1.6 1.6 0 0 1 1.35.8l.6.95A1.6 1.6 0 0 0 16.7 6H18a2.5 2.5 0 0 1 2.5 2.5v8A2.5 2.5 0 0 1 18 19H6a2.5 2.5 0 0 1-2.5-2.5v-8Z" />
+                        <path d="M9.4 12.6a2.9 2.9 0 0 1 4.9-1.9m.3 2.7a2.9 2.9 0 0 1-4.9 1.9" />
+                        <path d="M14.6 8.4v2.3h-2.3M9.4 16.6v-2.3h2.3" />
+                    </svg>
+                </button>
             </div>
         </div>
 
@@ -141,6 +148,21 @@
             <h2>Hasil jepretanmu</h2>
             <p>Semua ini akan muncul di album bersama {{ $event->couple }}.</p>
             <div class="roll-grid" id="cam-roll-grid"></div>
+        </div>
+
+        {{-- ------------------------------------------- Pratinjau satu hasil --}}
+        <div class="cam__viewer" id="cam-viewer" hidden>
+            <button type="button" class="cam-icon cam__viewer-close" id="cam-viewer-close" aria-label="Tutup">✕</button>
+
+            <div class="cam__viewer-stage">
+                <img id="cam-viewer-image" alt="" hidden />
+                <video id="cam-viewer-video" playsinline hidden></video>
+            </div>
+
+            <div class="cam__viewer-bar">
+                <span id="cam-viewer-label"></span>
+                <a id="cam-viewer-download" class="cam-icon" download aria-label="Unduh">⬇</a>
+            </div>
         </div>
 
         {{-- ---------------------------------------------------- Roll habis --}}
