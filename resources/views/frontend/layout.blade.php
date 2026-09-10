@@ -9,12 +9,14 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Shippori+Mincho:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" />
 
-    <link rel="stylesheet" href="{{ asset('assets/css/setsuna.css') }}" />
+    <link rel="stylesheet" href="{{ \App\Support\Asset::v('assets/css/setsuna.css') }}" />
 
     @stack('styles')
 </head>
 
 <body>
+
+    @include('partials.curtain', ['title' => $brand['name']])
 
     <header class="site-header">
         <div class="wrap site-header__bar">

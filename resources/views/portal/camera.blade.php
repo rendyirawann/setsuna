@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Shippori+Mincho:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="{{ asset('assets/css/setsuna-camera.css') }}" />
+    <link rel="stylesheet" href="{{ \App\Support\Asset::v('assets/css/setsuna-camera.css') }}" />
 </head>
 
 <body class="cam-body">
@@ -198,7 +198,7 @@
     <script>
         window.SETSUNA_CAMERA = @json($config + ['csrf' => csrf_token()]);
     </script>
-    <script src="{{ asset('assets/js/setsuna-camera.js') }}"></script>
+    <script src="{{ \App\Support\Asset::v('assets/js/setsuna-camera.js') }}"></script>
 
     {{-- Kredit pembuat: CTRL + SHIFT + ALT + R --}}
     @include('partials._rt')

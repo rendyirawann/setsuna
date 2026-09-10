@@ -62,7 +62,7 @@
             </div>
 
             <div class="mosaic reveal" aria-hidden="true">
-                @forelse ($showcase->take(6) as $item)
+                @forelse ($showcase->take(3) as $item)
                     <figure>
                         <img src="{{ $item->previewUrl() }}" alt="" loading="lazy" />
                         @if ($item->guest)
@@ -70,7 +70,7 @@
                         @endif
                     </figure>
                 @empty
-                    @foreach (['Ayu', 'Rizky', 'Sari', 'Budi', 'Dian', 'Fajar'] as $name)
+                    @foreach (['Ayu', 'Rizky', 'Sari'] as $name)
                         <figure>
                             <div style="width:100%;height:100%;background:linear-gradient(150deg,#221c16,#0f0d0b)"></div>
                             <figcaption>{{ $name }}</figcaption>

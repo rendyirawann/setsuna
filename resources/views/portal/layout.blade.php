@@ -18,32 +18,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Shippori+Mincho:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="{{ asset('assets/css/setsuna.css') }}" />
+    <link rel="stylesheet" href="{{ \App\Support\Asset::v('assets/css/setsuna.css') }}" />
 
     @stack('styles')
 </head>
 
 <body>
 
-    {{-- Tirai pembuka, 1,2 detik. Ditaruh paling atas agar tampil
-         sebelum apa pun sempat terlihat. --}}
-    <div class="curtain" id="curtain" aria-hidden="true">
-        <div>
-            <svg class="curtain__enso" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-                <defs>
-                    <linearGradient id="curtain-gold" x1="0.1" y1="0" x2="0.9" y2="1">
-                        <stop offset="0" stop-color="#F4DFC0" />
-                        <stop offset="1" stop-color="#C7985E" />
-                    </linearGradient>
-                </defs>
-                <path stroke="url(#curtain-gold)" stroke-width="2.4" stroke-linecap="round"
-                    d="M45.5 12.5a24 24 0 1 0 8.2 12.4" />
-            </svg>
-
-            <span class="curtain__kana">せつな</span>
-            <p class="curtain__name">{{ $event->couple }}</p>
-        </div>
-    </div>
+    @include('partials.curtain', ['title' => $event->couple])
 
     <header class="site-header">
         <div class="wrap site-header__bar">
@@ -112,24 +94,9 @@
     </script>
 
     <script>
-        // Tirai pembuka: 1,2 detik, lalu dilepas dari DOM supaya tidak
-        // menyisakan lapisan yang menghalangi ketukan.
-        (function () {
-            var curtain = document.getElementById('curtain');
-
-            if (!curtain) {
-                return;
-            }
-
-            window.setTimeout(function () {
-                curtain.hidden = true;
-                curtain.remove();
-            }, 1600);
-        })();
-
         window.SETSUNA_PORTAL = @json(['feed' => route('portal.feed', $event->slug), 'now' => now()->utc()->format('Y-m-d\TH:i:s.v\Z')]);
     </script>
-    <script src="{{ asset('assets/js/setsuna-portal.js') }}"></script>
+    <script src="{{ \App\Support\Asset::v('assets/js/setsuna-portal.js') }}"></script>
 
     @stack('scripts')
 
