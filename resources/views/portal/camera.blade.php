@@ -50,14 +50,6 @@
 
         <div class="cam__uploading" id="cam-uploading">Mengunggah…</div>
 
-        {{-- ------------------------------------------------- Penghitung --}}
-        <div class="cam__counter">
-            <span class="n" id="cam-count-prev">19</span>
-            <span class="n n--now" id="cam-count-now">18</span>
-            <span class="n" id="cam-count-next">17</span>
-            <span class="label" id="cam-count-label">foto tersisa</span>
-        </div>
-
         {{-- ---------------------------------------------------- Bar bawah --}}
         <div class="cam__bottom">
             <div class="cam__modes">
@@ -77,10 +69,21 @@
             </div>
 
             <div class="cam__actions">
-                <button type="button" class="roll-thumb" id="cam-roll-btn" aria-label="Lihat rollmu">
-                    <span id="cam-roll-thumb">🎞️</span>
-                    <b id="cam-roll-count" hidden>0</b>
-                </button>
+                {{-- Sisa jatah menempel di tombol album, di pojok kiri bawah,
+                     supaya tengah layar bersih untuk tombol rana. --}}
+                <div class="cam__left">
+                    <button type="button" class="roll-thumb" id="cam-roll-btn" aria-label="Lihat rollmu">
+                        <span id="cam-roll-thumb">🎞️</span>
+                        <b id="cam-roll-count" hidden>0</b>
+                    </button>
+
+                    <div class="cam__counter">
+                        <span class="n" id="cam-count-prev">19</span>
+                        <span class="n n--now" id="cam-count-now">18</span>
+                        <span class="n" id="cam-count-next">17</span>
+                        <span class="label" id="cam-count-label">foto tersisa</span>
+                    </div>
+                </div>
 
                 <button type="button" class="shutter" id="cam-shutter" aria-label="Ambil">
                     <span class="shutter__core"></span>

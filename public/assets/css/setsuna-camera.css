@@ -483,3 +483,65 @@ body.cam-body {
     .cam__grain { animation: none; }
     * { transition-duration: 0.01ms !important; }
 }
+
+/* =========================================================================
+   Penghitung sisa jatah — pojok kiri bawah
+   -------------------------------------------------------------------------
+   Sebelumnya melayang di tengah layar dan menutupi objek yang sedang
+   dibidik. Sekarang menempel di sebelah tombol album, sederet dengan
+   tombol rana yang tetap persis di tengah.
+   ========================================================================= */
+
+.cam__actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    gap: 10px;
+}
+
+.cam__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+/* Rana dikunci ke tengah bingkai, bukan ke sisa ruang, supaya posisinya
+   tidak bergeser saat angka jatah berubah lebar. */
+.shutter {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+}
+
+.shutter:active { transform: translateX(-50%) scale(0.94); }
+
+.cam__counter {
+    margin: 0;
+    padding: 5px 13px;
+    gap: 8px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.42);
+}
+
+.cam__counter .n { font-size: 0.82rem; }
+.cam__counter .n--now { font-size: 1.6rem; }
+
+.cam__counter .label {
+    font-size: 0.5rem;
+    letter-spacing: 0.16em;
+    margin-left: 2px;
+    max-width: 46px;
+    line-height: 1.15;
+}
+
+/* Layar sempit: cukup angka sekarang, tetangganya disembunyikan agar
+   tidak berebut ruang dengan tombol rana. */
+@media (max-width: 430px) {
+    .cam__counter { padding: 4px 10px; gap: 6px; }
+    .cam__counter .n:not(.n--now) { display: none; }
+    .cam__counter .n--now { font-size: 1.35rem; }
+    .cam__counter .label { max-width: 40px; font-size: 0.46rem; }
+}
