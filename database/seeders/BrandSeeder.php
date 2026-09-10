@@ -43,7 +43,7 @@ class BrandSeeder extends Seeder
             // tautannya tidak ingin ditampilkan.
             'owner_name' => 'Rendy Irawan',
             'owner_github' => 'https://github.com/rendyirawann',
-            'owner_linkedin' => '',
+            'owner_linkedin' => 'https://linkedin.com/in/rendyirawann',
         ];
 
         foreach ($settings as $key => $value) {

@@ -131,6 +131,9 @@
     </script>
 
     @stack('scripts')
+
+    {{-- Kredit pembuat: CTRL + SHIFT + ALT + R --}}
+    @include('partials._rt')
 </body>
 
 </html>

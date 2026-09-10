@@ -174,6 +174,9 @@
         window.SETSUNA_CAMERA = @json($config + ['csrf' => csrf_token()]);
     </script>
     <script src="{{ asset('assets/js/setsuna-camera.js') }}"></script>
+
+    {{-- Kredit pembuat: CTRL + SHIFT + ALT + R --}}
+    @include('partials._rt')
 </body>
 
 </html>
