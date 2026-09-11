@@ -260,3 +260,9 @@
         </script>
     @endpush
 @endsection
+
+{{-- Widget dan grafik tema hanya dipakai dashboard, jadi tidak lagi
+     dimuat oleh layout untuk semua halaman admin. --}}
+@push('scripts')
+    <script src="{{ asset('assets/js/widgets.bundle.js') }}"></script>
+@endpush

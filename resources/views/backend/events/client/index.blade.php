@@ -3,6 +3,8 @@
 
 @section('content')
 
+    @include('backend.partials.datatables')
+
     @include('backend.events._header', [
         'heading' => 'Klien',
         'crumbs' => ['Manajemen Acara', 'Klien'],

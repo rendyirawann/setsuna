@@ -20,3 +20,7 @@
         <video id="lightbox-video" playsinline controls hidden></video>
     </div>
 </div>
+
+@push('scripts')
+    <script src="{{ \App\Support\Asset::v('assets/js/setsuna-portal.js') }}" defer></script>
+@endpush

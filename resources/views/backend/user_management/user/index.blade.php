@@ -1,6 +1,8 @@
 @extends('backend.layout.app')
 @section('title', 'User Management')
 @section('content')
+
+    @include('backend.partials.datatables')
     <!--begin::Toolbar-->
     <div id="kt_app_toolbar" class="app-toolbar py-3 py-lg-0">
         <!--begin::Toolbar container-->

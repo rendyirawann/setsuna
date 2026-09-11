@@ -12,7 +12,15 @@
     <section class="hero">
         <div class="hero__bg" aria-hidden="true">
             @if (file_exists(public_path('assets/media/hero/hero.jpg')))
-                <img src="{{ asset('assets/media/hero/hero.jpg') }}" alt="" class="hero__bg-img" />
+                @php $heroSrcset = \App\Support\Asset::srcset('assets/media/hero/hero.jpg'); @endphp
+
+                {{-- Gambar terbesar di halaman ini sekaligus yang pertama
+                     terlihat, jadi ia dimuat lebih dulu (bukan lazy) dan
+                     ponsel mendapat varian yang lebih kecil lewat srcset. --}}
+                <img src="{{ \App\Support\Asset::v('assets/media/hero/hero.jpg') }}"
+                    @if ($heroSrcset) srcset="{{ $heroSrcset }}" sizes="100vw" @endif
+                    width="1672" height="941" alt="" class="hero__bg-img"
+                    fetchpriority="high" decoding="async" />
             @elseif ($showcase->count())
                 <div class="hero__collage">
                     @foreach ($showcase->take(12) as $item)
@@ -64,7 +72,12 @@
             <div class="mosaic reveal" aria-hidden="true">
                 @forelse ($showcase->take(3) as $item)
                     <figure>
-                        <img src="{{ $item->previewUrl() }}" alt="" loading="lazy" />
+                        <img src="{{ $item->previewUrl() }}"
+                            @if ($item->previewSrcset())
+                                srcset="{{ $item->previewSrcset() }}" sizes="(max-width: 940px) 30vw, 15vw"
+                            @endif
+                            width="{{ $item->width ?: 900 }}" height="{{ $item->height ?: 1200 }}"
+                            alt="" loading="lazy" decoding="async" />
                         @if ($item->guest)
                             <figcaption>{{ $item->guest->name }}</figcaption>
                         @endif
@@ -325,3 +338,8 @@
     </section>
 
 @endsection
+
+{{-- Parallax hero hanya ada di beranda. --}}
+@push('scripts')
+    <script src="{{ \App\Support\Asset::v('assets/js/setsuna-hero.js') }}" defer></script>
+@endpush

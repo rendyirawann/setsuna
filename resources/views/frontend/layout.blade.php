@@ -132,7 +132,8 @@
         })();
     </script>
 
-    <script src="{{ \App\Support\Asset::v('assets/js/setsuna-hero.js') }}" defer></script>
+    {{-- Skrip khusus halaman (mis. parallax hero) didorong lewat
+         @push('scripts') oleh view yang memang memakainya. --}}
 
     @stack('scripts')
 

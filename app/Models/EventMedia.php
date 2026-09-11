@@ -91,6 +91,26 @@ class EventMedia extends Model
             : $this->url();
     }
 
+    /**
+     * Srcset untuk grid galeri, atau null kalau varian kecilnya tidak ada
+     * (media lama yang diunggah sebelum varian ini dibuat).
+     *
+     * Ponsel menampilkan ubin selebar ±180px, jadi mengirimi mereka
+     * thumbnail 720px membuang kuota tamu tanpa terlihat lebih tajam.
+     */
+    public function previewSrcset(): ?string
+    {
+        $small = $this->meta['thumb_sm'] ?? null;
+
+        if (! $small || ! $this->thumb_path) {
+            return null;
+        }
+
+        $disk = Storage::disk($this->disk);
+
+        return $disk->url($small) . ' 360w, ' . $disk->url($this->thumb_path) . ' 720w';
+    }
+
     public function downloadUrl(): string
     {
         return route('portal.media.download', [
@@ -130,7 +150,7 @@ class EventMedia extends Model
     {
         $disk = Storage::disk($this->disk);
 
-        foreach ([$this->path, $this->thumb_path, $this->poster_path] as $file) {
+        foreach ([$this->path, $this->thumb_path, $this->meta['thumb_sm'] ?? null, $this->poster_path] as $file) {
             if ($file && $disk->exists($file)) {
                 $disk->delete($file);
             }

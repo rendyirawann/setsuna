@@ -16,9 +16,8 @@
         href="https://fonts.googleapis.com/css2?family={{ str_replace(' ', '+', $brand['font']) }}:wght@300;400;500;600;700;800&display=swap" />
     <!--end::Fonts-->
 
-    <!--begin::Vendor Stylesheets-->
-    <link href="{{ asset('assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet" type="text/css" />
-    <!--end::Vendor Stylesheets-->
+    {{-- Berkas khusus halaman (mis. DataTables) didorong lewat
+         @push('stylesheets') oleh view yang memang memakainya. --}}
 
     <!--begin::Global Stylesheets Bundle-->
     <link href="{{ asset('assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
@@ -202,11 +201,15 @@
     <script>
         var hostUrl = "{{ asset('assets/') }}";
     </script>
+    {{-- Inti tema: jQuery, Bootstrap, SweetAlert, toastr. Dipakai setiap
+         halaman admin, termasuk oleh dialog konfirmasi di bawah. --}}
     <script src="{{ asset('assets/plugins/global/plugins.bundle.js') }}"></script>
     <script src="{{ asset('assets/js/scripts.bundle.js') }}"></script>
-    <script src="{{ asset('assets/plugins/custom/datatables/datatables.bundle.js') }}"></script>
-    <script src="{{ asset('assets/js/widgets.bundle.js') }}"></script>
     <script src="{{ asset('assets/js/app-shell.js') }}"></script>
+
+    {{-- DataTables (±2,4 MB) dan widgets/grafik (±223 KB) tidak lagi ikut
+         di sini: keduanya didorong lewat @push('scripts') hanya oleh
+         halaman yang benar-benar memakainya. --}}
 
     <script>
         // Konfirmasi untuk aksi merusak. Form apa pun yang membawa

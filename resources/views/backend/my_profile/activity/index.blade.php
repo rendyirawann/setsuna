@@ -2,6 +2,8 @@
 @section('title', 'My Activity')
 @section('mp')
 
+    @include('backend.partials.datatables')
+
 
     <div class="card pt-4 border border-gray-300">
         <!--begin::Card header-->

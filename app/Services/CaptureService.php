@@ -134,26 +134,27 @@ class CaptureService
         }
 
         $thumbPath = null;
+        $thumbSmallPath = null;
         $posterPath = null;
         $width = null;
         $height = null;
 
         if ($type === 'photo') {
             [$width, $height] = $this->dimensions($disk->path($path));
-            $thumbPath = $this->makeThumbnail($disk->path($path), $folder, $filename);
+            [$thumbPath, $thumbSmallPath] = $this->makeThumbnail($disk->path($path), $folder, $filename);
         } elseif ($poster) {
             $posterName = pathinfo($filename, PATHINFO_FILENAME) . '.jpg';
             $posterPath = $poster->storeAs($folder . '/poster', $posterName, 'public');
 
             if ($posterPath) {
                 [$width, $height] = $this->dimensions($disk->path($posterPath));
-                $thumbPath = $this->makeThumbnail($disk->path($posterPath), $folder . '/poster', $posterName);
+                [$thumbPath, $thumbSmallPath] = $this->makeThumbnail($disk->path($posterPath), $folder . '/poster', $posterName);
             }
         }
 
         try {
             return DB::transaction(function () use (
-                $event, $guest, $type, $file, $path, $thumbPath, $posterPath, $width, $height, $meta
+                $event, $guest, $type, $file, $path, $thumbPath, $thumbSmallPath, $posterPath, $width, $height, $meta
             ) {
                 /** @var EventGuest $locked */
                 $locked = EventGuest::whereKey($guest->id)->lockForUpdate()->firstOrFail();
@@ -187,12 +188,14 @@ class CaptureService
                     'captured_at' => now(),
                     'meta' => [
                         'facing' => $meta['facing'] ?? null,
+                        // Varian 360px untuk srcset di galeri.
+                        'thumb_sm' => $thumbSmallPath,
                     ],
                 ]);
             });
         } catch (RuntimeException|ModelNotFoundException $e) {
             // Kuota habis atau tamu hilang: jangan tinggalkan berkas yatim.
-            foreach ([$path, $thumbPath, $posterPath] as $orphan) {
+            foreach ([$path, $thumbPath, $thumbSmallPath, $posterPath] as $orphan) {
                 if ($orphan && $disk->exists($orphan)) {
                     $disk->delete($orphan);
                 }
@@ -241,49 +244,43 @@ class CaptureService
      * Thumbnail 720px sisi terpanjang. Grid galeri bisa berisi ratusan
      * gambar, jadi jangan pernah kirim berkas aslinya ke sana.
      */
-    private function makeThumbnail(string $absolutePath, string $folder, string $filename): ?string
+    /**
+     * Dua ukuran thumbnail: 720px untuk layar lebar, 360px untuk ponsel.
+     *
+     * Grid galeri bisa berisi ratusan gambar, jadi berkas aslinya tidak
+     * pernah dikirim ke sana. Keluarannya WebP kalau GD mendukung —
+     * kira-kira separuh ukuran JPEG pada kualitas yang sama-sama tidak
+     * terlihat bedanya.
+     *
+     * @return array{0:?string,1:?string} [thumb 720, thumb 360]
+     */
+    private function makeThumbnail(string $absolutePath, string $folder, string $filename): array
     {
         if (! extension_loaded('gd')) {
-            return null;
+            return [null, null];
         }
 
-        $info = @getimagesize($absolutePath);
-
-        if (! $info) {
-            return null;
-        }
-
-        [$width, $height] = $info;
-        $source = match ($info['mime'] ?? '') {
-            'image/jpeg' => @imagecreatefromjpeg($absolutePath),
-            'image/png' => @imagecreatefrompng($absolutePath),
-            'image/webp' => @imagecreatefromwebp($absolutePath),
-            default => null,
-        };
+        $source = ImageOptimizer::read($absolutePath);
 
         if (! $source) {
-            return null;
+            return [null, null];
         }
 
-        $max = 720;
-        $scale = min(1, $max / max($width, $height));
-        $targetWidth = max(1, (int) round($width * $scale));
-        $targetHeight = max(1, (int) round($height * $scale));
+        $disk = Storage::disk('public');
+        $extension = ImageOptimizer::bestExtension();
+        $name = pathinfo($filename, PATHINFO_FILENAME) . '.' . $extension;
 
-        $thumb = imagecreatetruecolor($targetWidth, $targetHeight);
-        imagecopyresampled($thumb, $source, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
+        $large = $folder . '/thumb/' . $name;
+        $small = $folder . '/thumb/sm/' . $name;
 
-        $relative = $folder . '/thumb/' . pathinfo($filename, PATHINFO_FILENAME) . '.jpg';
-        $destination = Storage::disk('public')->path($relative);
+        $largeResult = ImageOptimizer::resizeTo($source, $disk->path($large), 720);
+        $smallResult = ImageOptimizer::resizeTo($source, $disk->path($small), 360);
 
-        if (! is_dir(dirname($destination))) {
-            mkdir(dirname($destination), 0o755, true);
-        }
-
-        imagejpeg($thumb, $destination, 82);
-        imagedestroy($thumb);
         imagedestroy($source);
 
-        return $relative;
+        return [
+            $largeResult ? $large : null,
+            $smallResult ? $small : null,
+        ];
     }
 }

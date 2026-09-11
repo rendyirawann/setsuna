@@ -8,6 +8,7 @@ use App\Models\EventGuest;
 use App\Models\EventMedia;
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Services\ImageOptimizer;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -210,20 +211,16 @@ class DemoEventSeeder extends Seeder
 
         imagejpeg($image, $absolute, 86);
 
-        // Thumbnail, sama seperti yang dibuat CaptureService.
-        $thumbRelative = $folder . '/thumb/' . pathinfo($filename, PATHINFO_FILENAME) . '.jpg';
-        $thumbAbsolute = $disk->path($thumbRelative);
+        // Thumbnail dibuat lewat jalur yang sama dengan unggahan tamu
+        // (720px + 360px, WebP bila didukung), supaya data contoh punya
+        // bentuk yang persis sama dengan data sungguhan.
+        $name = pathinfo($filename, PATHINFO_FILENAME) . '.' . ImageOptimizer::bestExtension();
+        $thumbRelative = $folder . '/thumb/' . $name;
+        $thumbSmallRelative = $folder . '/thumb/sm/' . $name;
 
-        if (! is_dir(dirname($thumbAbsolute))) {
-            mkdir(dirname($thumbAbsolute), 0o755, true);
-        }
+        $large = ImageOptimizer::resizeTo($image, $disk->path($thumbRelative), 720);
+        $small = ImageOptimizer::resizeTo($image, $disk->path($thumbSmallRelative), 360);
 
-        $thumbWidth = 540;
-        $thumbHeight = (int) round($height * ($thumbWidth / $width));
-        $thumb = imagecreatetruecolor($thumbWidth, $thumbHeight);
-        imagecopyresampled($thumb, $image, 0, 0, 0, 0, $thumbWidth, $thumbHeight, $width, $height);
-        imagejpeg($thumb, $thumbAbsolute, 82);
-        imagedestroy($thumb);
         imagedestroy($image);
 
         EventMedia::create([
@@ -232,7 +229,7 @@ class DemoEventSeeder extends Seeder
             'type' => 'photo',
             'disk' => 'public',
             'path' => $relative,
-            'thumb_path' => $thumbRelative,
+            'thumb_path' => $large ? $thumbRelative : null,
             'mime' => 'image/jpeg',
             'size' => (int) filesize($absolute),
             'width' => $width,
@@ -240,6 +237,7 @@ class DemoEventSeeder extends Seeder
             'film_preset' => $event->film_preset,
             'status' => 'approved',
             'captured_at' => now()->subMinutes(random_int(10, 720)),
+            'meta' => ['thumb_sm' => $small ? $thumbSmallRelative : null],
         ]);
 
         $guest->increment('photos_used');

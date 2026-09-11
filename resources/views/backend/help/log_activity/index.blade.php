@@ -3,6 +3,8 @@
 @section('title', 'Log Aktivitas')
 
 @section('content')
+
+    @include('backend.partials.datatables')
     <!--begin::Page header-->
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-6">
         <div class="min-w-0">

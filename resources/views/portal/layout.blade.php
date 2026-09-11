@@ -96,7 +96,8 @@
     <script>
         window.SETSUNA_PORTAL = @json(['feed' => route('portal.feed', $event->slug), 'now' => now()->utc()->format('Y-m-d\TH:i:s.v\Z')]);
     </script>
-    <script src="{{ \App\Support\Asset::v('assets/js/setsuna-portal.js') }}"></script>
+    {{-- setsuna-portal.js (lightbox + album yang menyala sendiri) hanya
+         dimuat oleh halaman yang punya galeri: galeri, roll, album tamu. --}}
 
     @stack('scripts')
 

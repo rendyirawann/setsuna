@@ -2,6 +2,7 @@
      video pun terlihat seragam dengan foto yang filternya sudah dibakar. --}}
 @php
     $presetCss = \App\Support\FilmPresets::css($item->film_preset ?: $event->film_preset);
+    $srcset = $item->previewSrcset();
 @endphp
 
 <div class="tile reveal" data-media-id="{{ $item->id }}" style="filter:{{ $item->type === 'photo' ? 'none' : $presetCss }}">
@@ -13,7 +14,18 @@
         data-preset="{{ $presetCss }}"
         data-download="{{ $event->allow_download ? $item->downloadUrl() : '' }}">
 
-        <img src="{{ $item->previewUrl() }}" alt="Jepretan {{ $item->guest?->name }}" loading="lazy" />
+        {{-- width/height diisi supaya browser sudah tahu rasionya dan
+             tata letaknya tidak melompat saat gambar selesai dimuat. --}}
+        <img src="{{ $item->previewUrl() }}"
+            @if ($srcset)
+                srcset="{{ $srcset }}"
+                sizes="(max-width: 760px) 45vw, (max-width: 1100px) 30vw, 22vw"
+            @endif
+            @if ($item->width && $item->height)
+                width="{{ $item->width }}" height="{{ $item->height }}"
+            @endif
+            alt="Jepretan {{ $item->guest?->name ?? 'tamu' }}"
+            loading="lazy" decoding="async" />
 
         @if ($item->type !== 'photo')
             <span class="tile__type">{{ $item->type === 'video' ? '▶ video' : '∞ boomerang' }}</span>

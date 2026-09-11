@@ -2,6 +2,8 @@
 @section('title', 'Login Session')
 @section('mp')
 
+    @include('backend.partials.datatables')
+
     <div class="card mb-5 mb-lg-10 border border-gray-300">
         <!--begin::Card header-->
         <div class="card-header border-bottom border-gray-300">
